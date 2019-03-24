@@ -1,0 +1,30 @@
+import requests
+from bs4 import BeautifulSoup
+from music163 import sql
+headers = {
+    'Accept': '*/*',
+    'Accept-Encoding': 'gzip, deflate, sdch',
+    'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Cookie': '_ngd_tid=lxmnSYCjsG5r5shRPkFGYZMMefqBg%2Fq%2F; _ntes_nuid=1a94a2a5bf96954dcadd97320b19039b; _iuqxldmzr_=32; _ga=GA1.2.732235157.1547991984; mail_psc_fingerprint=5778b500d9ab9cd98319dc5acc236ead; _ntes_nnid=1a94a2a5bf96954dcadd97320b19039b,1553430109356; WM_NI=QKqIL%2FLcOSMUf5Z8nG3G3NbGFDV2wJkH2Vtf27CYyOchixmtbEEJ%2BJr%2FeEyJbtSlw1qdiOM4lpWlrsUR4f1HM3k%2BCMaiwfFfeyqJSketdhdJsDF3HG9HCE9DPzMfkYaWY04%3D; WM_NIKE=9ca17ae2e6ffcda170e2e6ee93f76df897bfd5f65494868fa3d45b878a8fabf77dfba6e1d3c23cb89d8f95ef2af0fea7c3b92a9395bfaacf2590bd81b4d05fa6eb96d9ed4df199fdafe14d869c9ad3f642a998feb7f76ef2e98dbafc45a1b8a799f080a29b8babaa42b2f1aba6fc42a2ac9d8df63bb3bca7b0d040b0b0998df179978efc87b4448feda5ccc247a3b7b987c56ea7a7bfabd261a7acac89e742b19c8ad4cb4dfb988da6bc5094a68387ea53a38997d1b737e2a3; WM_TID=r%2FnRwU3v4sFERBFAQUNphsnq2Wk4HEow; JSESSIONID-WYYY=9g3Z501EgJAlWJ0%5CRpJ0GdllD%2BwhIYWlnn7m8Qg3Cle7f2uKdNvbwUnh6eM%2Blp7kAPem5mGb4MQE8urOc6Gy8q0thQIQnakODTxY5AGPvw1mBiJGaM6j89%5CqTn27M7zp7vN%5CC2euTdRM%5CaqRaQtkR%2B8cl95iER2m9tNVPF%5CtFR3iTl6a%3A1553433649351',
+    'Host':'music.163.com',
+    'DNT': '1',
+    'Pragma': 'no-cache',
+    'Upgrade-Insecure-Requests': '1',
+    'Origin': 'https://music.163.com',
+    'Referer': 'https://music.163.com/',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
+}
+def get_singer(group_id,initial):
+    params = {'id': group_id, 'initial': initial}
+    r = requests.get('http://music.163.com/discover/artist/cat',headers=headers,params=params)
+
+    soup = BeautifulSoup(r.content.decode(), 'html.parser')
+    body = soup.body
+    singers = body.find_all('a', attrs={'class': 'nm nm-icn f-thide s-fc0'})
+    for singer in singers:
+        singer_id = singer['href'].replace('/artist?id=', '').strip()
+        singer_name = singer.string
+        sql.insert_singer(singer_id, singer_name)
+get_singer(1001,-1)
