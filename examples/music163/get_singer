@@ -26,5 +26,11 @@ def get_singer(group_id,initial):
     for singer in singers:
         singer_id = singer['href'].replace('/artist?id=', '').strip()
         singer_name = singer.string
-        sql.insert_singer(singer_id, singer_name)
+        try:
+            sql.insert_singer(singer_id, singer_name)
+        except Exception as e:
+            print(e)
 get_singer(1001,-1)
+for i in range(65,91):
+    get_singer(1001,i)
+
